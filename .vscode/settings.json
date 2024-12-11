@@ -4,6 +4,22 @@
         "iosfwd": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "map": "cpp",
+        "stdexcept": "cpp",
+        "__debug": "cpp",
+        "complex": "cpp",
+        "exception": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "string": "cpp",
+        "initializer_list": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "memory": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "type_traits": "cpp",
+        "chrono": "cpp"
     }
 }

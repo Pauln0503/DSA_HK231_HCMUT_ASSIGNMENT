@@ -16,12 +16,9 @@
 #include "graph/AbstractGraph.h"
  #include "stacknqueue/Queue.h"
  #include "stacknqueue/Stack.h"
-// #include "hash/XHashMap.h"
+ #include "hash/xMap.h"
 // #include "stacknqueue/PriorityQueue.h"
  #include "sorting/DLinkedListSE.h"
- #include "stacknqueue/IDeck.h"
-#include "hash/xMap.h"
-#include "sorting/ISort.h"
 
 //////////////////////////////////////////////////////////////////////
 ///////////// GraphModel: Directed Graph Model    ////////////////////
@@ -44,14 +41,14 @@ public:
         typename AbstractGraph<T>::VertexNode *fromNode = this->getVertexNode(from);
         if (!fromNode)
         {
-            throw VertexNotFoundException("Vertex " + this->vertex2str(from) + " not found.");
+            throw VertexNotFoundException(this->vertex2str(from));
         }
 
         // Lấy VertexNode của đỉnh to
         typename AbstractGraph<T>::VertexNode *toNode = this->getVertexNode(to);
         if (!toNode)
         {
-            throw VertexNotFoundException("Vertex " + this->vertex2str(to) + " not found.");
+            throw VertexNotFoundException(this->vertex2str(to));
         }
 
         // Kết nối từ from đến to
@@ -63,19 +60,19 @@ public:
         typename AbstractGraph<T>::VertexNode *fromNode = this->getVertexNode(from);
         if (!fromNode)
         {
-            throw VertexNotFoundException("Vertex " + this->vertex2str(from) + " not found.");
+            throw VertexNotFoundException( this->vertex2str(from));
         }
         // Lấy VertexNode của đỉnh to
         typename AbstractGraph<T>::VertexNode *toNode = this->getVertexNode(to);
         if (!toNode)
         {
-            throw VertexNotFoundException("Vertex " + this->vertex2str(to) + " not found.");
+            throw VertexNotFoundException( this->vertex2str(to));
         }
         // Xóa cạnh từ from đến to
         typename AbstractGraph<T>::Edge *edge = fromNode->getEdge(toNode);
         if (!edge)
         {
-            throw EdgeNotFoundException("Edge from " + this->vertex2str(from) + " to " + this->vertex2str(to) + " not found.");
+            throw EdgeNotFoundException("E(" + this->vertex2str(from) + "," + this->vertex2str(to) + ")");
         }
         fromNode->removeTo(toNode);
     }
@@ -84,7 +81,7 @@ public:
         typename AbstractGraph<T>::VertexNode *targetNode = this->getVertexNode(vertex);
         if (!targetNode)
         {
-            throw VertexNotFoundException("Vertex " + this->vertex2str(vertex) + " not found.");
+            throw VertexNotFoundException(this->vertex2str(vertex) );
         }
 
         // Remove incoming edges

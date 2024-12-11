@@ -231,22 +231,41 @@ public:
     }
 
     // Toán tử tiền tố -- (di chuyển iterator về trước)
+    BWDIterator operator++(int)
+    {
+        BWDIterator iterator = *this;
+        if (pNode != nullptr) {
+            pNode = pNode->prev;
+        }
+        return iterator;
+    }
+
+    // Fix pre-increment operator 
     BWDIterator &operator++()
     {
         if (pNode != nullptr) {
-            pNode = pNode->prev; 
+            pNode = pNode->prev;
         }
         return *this;
     }
 
-    // Toán tử hậu tố -- (di chuyển iterator về trước và trả về iterator cũ)
-    BWDIterator operator++(int)
+    // Fix post-decrement operator
+    BWDIterator operator--(int)
     {
-        BWDIterator iterator = *this;  // Lưu trạng thái hiện tại
-    if ( pNode->prev == nullptr) {
-        ++(*this);  
+        BWDIterator iterator = *this;
+        if (pNode != nullptr) {
+            pNode = pNode->prev;
+        }
+        return iterator;
     }
-    return iterator; 
+
+    // Fix pre-decrement operator
+    BWDIterator &operator--()
+    {
+        if (pNode != nullptr) {
+            pNode = pNode->prev;
+        }
+        return *this;
     }
 };
 

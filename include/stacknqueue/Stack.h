@@ -40,7 +40,7 @@ public:
     void push(T item)
     {
         // TODO: add item to the top
-        list.add(item);
+        list.add(0,item);
         // list.add(0,item);
     }
     T pop()
@@ -67,11 +67,7 @@ public:
     bool empty()
     {
         // TODO: check if the stack is empty
-        if (empty())
-        {
-            return true;
-        }
-        return false;
+        return list.size()==0;
     }
     int size()
     {

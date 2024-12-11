@@ -21,31 +21,63 @@ using namespace std;
 #include "list/DLinkedList.h"
 
 
-class VertexNotFoundException: public std::exception{
+// class VertexNotFoundException: public std::exception{
+// private:
+//     string vertex;
+// public:
+//     VertexNotFoundException(string vertex){
+//         this->vertex = vertex;
+//     }
+//     const char * what () const throw (){
+//         stringstream os;
+//         os << "Vertex (" << this->vertex << "): is not found";
+//         return os.str().c_str();
+//     }
+// };
+
+// class EdgeNotFoundException: public std::exception{
+// private:
+//     string edge;
+// public:
+//     EdgeNotFoundException(string edge){
+//         this->edge = edge;
+//     }
+//     const char * what () const throw (){
+//         stringstream os;
+//         os << "Edge (" << edge << "): is not found";
+//         return os.str().c_str();
+//     }
+// };
+// chỉ cho testcase viễn tó
+class VertexNotFoundException : public std::exception {
 private:
-    string vertex;
+    std::string vertex;
+    std::string errorMessage; // Biến thành viên lưu thông báo lỗi
 public:
-    VertexNotFoundException(string vertex){
-        this->vertex = vertex;
-    }
-    const char * what () const throw (){
-        stringstream os;
+    explicit VertexNotFoundException(const std::string& vertex) : vertex(vertex) {
+        std::stringstream os;
         os << "Vertex (" << this->vertex << "): is not found";
-        return os.str().c_str();
+        errorMessage = os.str(); // Lưu chuỗi vào biến thành viên
+    }
+
+    const char* what() const noexcept override {
+        return errorMessage.c_str();
     }
 };
 
-class EdgeNotFoundException: public std::exception{
+class EdgeNotFoundException : public std::exception {
 private:
-    string edge;
+    std::string edge;
+    std::string errorMessage; // Biến thành viên lưu thông báo lỗi
 public:
-    EdgeNotFoundException(string edge){
-        this->edge = edge;
-    }
-    const char * what () const throw (){
-        stringstream os;
+    explicit EdgeNotFoundException(const std::string& edge) : edge(edge) {
+        std::stringstream os;
         os << "Edge (" << edge << "): is not found";
-        return os.str().c_str();
+        errorMessage = os.str(); // Lưu chuỗi vào biến thành viên
+    }
+
+    const char* what() const noexcept override {
+        return errorMessage.c_str();
     }
 };
 

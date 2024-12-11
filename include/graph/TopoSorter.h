@@ -101,190 +101,41 @@ public:
 
    DLinkedList<T> dfsSort(bool sorted = true)
 {
-    DLinkedList<T> result;
-    DLinkedListSE<T> allVertices = graph->vertices();
+    xMap<T, bool> visited(hash_code); // Đánh dấu đỉnh đã thăm
+    DLinkedList<T> Topo_list;         // Danh sách kết quả
 
-    // Sort vertices in descending order if required
-    if (sorted)
-    {
-        // Sorting in descending order by reversing the order after sorting in ascending
-        //allVertices.sort();
-        allVertices.reverseSort();  // Reverse the list after sorting in ascending order
-    }
-    //cout << allVertices.toString() << endl;
-    // Default hash code if not provided
-    if (!hash_code)
-    {
-        hash_code = [](T &item, int size) -> int
+    // Hàm DFS đệ quy
+    std::function<void(const T &)> dfsVisit = [&](const T &vertex) {
+        visited.put(vertex, true); // Đánh dấu đỉnh đã được thăm
+
+        // Duyệt qua các đỉnh kề
+        DLinkedList<T> neighbors = graph->getOutwardEdges(vertex);
+        for (auto it = neighbors.begin(); it != neighbors.end(); ++it)
         {
-            return item % size;
-        };
-    }
-
-    // Initialize visited map with int (0 = not visited, 1 = visited)
-    xMap<T, int> visited(hash_code);
-
-    // Initialize all vertices as not visited (0 means not visited)
-    typename DLinkedList<T>::Iterator initIt = allVertices.begin();
-    while (initIt != allVertices.end())
-    {
-        visited.put(*initIt, 0);  // 0 means not visited
-        initIt++;
-    }
-
-    // DFS function
-    // Duyệt các đỉnh con theo thứ tự giảm dần
-std::function<void(T)> dfs = [&](T vertex) {
-    if (visited.get(vertex) == 1) // Đã duyệt
-        return;
-
-    visited.put(vertex, 1);  // Đánh dấu đã duyệt
-
-    // Lấy danh sách các đỉnh kề
-    DLinkedListSE<T> adjacents = graph->getOutwardEdges(vertex);
-    
-    // Sắp xếp giảm dần
-    adjacents.reverseSort();
-
-    // Đệ quy DFS cho các đỉnh kề
-    typename DLinkedList<T>::Iterator adjIt = adjacents.begin();
-    while (adjIt != adjacents.end()) {
-        dfs(*adjIt);
-        adjIt++;
-    }
-
-    // Thêm đỉnh vào kết quả sau khi duyệt (Post-order)
-    result.add(0, vertex);  // Thêm vào đầu danh sách kết quả
-};
-
-
-    // // Use listOfZeroInDegrees to start traversal
-     DLinkedListSE<T> zeroInDegrees = listOfZeroInDegrees();
-
-    // Reverse the zeroInDegrees list manually
-    DLinkedListSE<T> reversedZeroInDegrees;
-    typename DLinkedListSE<T>::Iterator zeroIt = zeroInDegrees.begin();
-    while (zeroIt != zeroInDegrees.end())
-    {
-        reversedZeroInDegrees.add(0, *zeroIt); // Add to the front to reverse
-        zeroIt++;
-    }
-
-    zeroInDegrees = reversedZeroInDegrees; // Assign back the reversed list
-
-    // Traverse vertices starting from zero in-degree vertices
-    typename DLinkedListSE<T>::Iterator vertexIt = zeroInDegrees.begin();
-    while (vertexIt != zeroInDegrees.end())
-    {
-        dfs(*vertexIt);
-        vertexIt++;
-    }
-
-    // Ensure all vertices are processed (handle disconnected components)
-    typename DLinkedList<T>::Iterator allVertexIt = allVertices.begin();
-    while (allVertexIt != allVertices.end())
-    {
-        if (visited.get(*allVertexIt) == 0)  // 0 means not visited
-        {
-            dfs(*allVertexIt);
+            T &neighbor = *it;
+            if (!visited.containsKey(neighbor))
+            {
+                dfsVisit(neighbor); // Đệ quy với đỉnh kề
+            }
         }
-        allVertexIt++;
+
+        // Sau khi duyệt xong, thêm đỉnh vào danh sách kết quả
+        Topo_list.add(0, vertex); // Thêm vào đầu danh sách
+    };
+
+    // Duyệt toàn bộ các đỉnh trong đồ thị
+    DLinkedList<T> vertices = graph->vertices();
+    for (auto it = vertices.begin(); it != vertices.end(); ++it)
+    {
+        T vertex = *it;
+        if (!visited.containsKey(vertex))
+        {
+            dfsVisit(vertex);
+        }
     }
 
-    return result;
+    return Topo_list;
 }
-
-
-
-
-// }
-// DLinkedList<T> dfsSort(bool sorted = true)
-// {
-//     DLinkedList<T> result;
-//     DLinkedListSE<T> allVertices = graph->vertices();
-
-//     if (!hash_code)
-//     {
-//         hash_code = [](T &item, int size) -> int
-//         {
-//             return item % size;
-//         };
-//     }
-
-//     // Initialize visited map
-//     xMap<T, bool> visited(hash_code);
-
-//     // Initialize all vertices as not visited
-//     typename DLinkedList<T>::Iterator initIt = allVertices.begin();
-//     while (initIt != allVertices.end())
-//     {
-//         visited.put(*initIt, false);
-//         initIt++;
-//     }
-
-//     // DFS function
-//     std::function<void(T)> dfs = [&](T vertex)
-//     {
-//         // Mark as visited
-//         visited.put(vertex, true);
-
-//         // Get outward edges
-//         DLinkedList<T> adjacents = graph->getOutwardEdges(vertex);
-//         typename DLinkedList<T>::Iterator it = adjacents.begin();
-
-//         while (it != adjacents.end())
-//         {
-//             T adjacent = *it;
-//             // Check if not visited before recursing
-//             if (!visited.get(adjacent))
-//             {
-//                 dfs(adjacent);
-//             }
-//             it++;
-//         }
-
-//         // Add to the front of the list for correct topological order
-//         result.add(0, vertex);
-//     };
-
-//     // Traverse all vertices
-//     typename DLinkedList<T>::Iterator vertexIt = allVertices.begin();
-//     while (vertexIt != allVertices.end())
-//     {
-//         T vertex = *vertexIt;
-//         if (!visited.get(vertex))
-//         {
-//             dfs(vertex);
-//         }
-//         vertexIt++;
-//     }
-
-//     // Create a list of vertices with in-degree of 0
-//     DLinkedList<T> zeroInDegreeVertices;
-//     typename DLinkedList<T>::Iterator it = allVertices.begin();
-//     while (it != allVertices.end())
-//     {
-//         if (graph->inDegree(*it) == 0)
-//         {
-//             zeroInDegreeVertices.add(*it);
-//         }
-//         it++;
-//     }
-
-//     // Reverse the order of the vertices with in-degree of 0 in the result
-//     typename DLinkedList<T>::Iterator reverseIt = zeroInDegreeVertices.begin();
-//     while (reverseIt != zeroInDegreeVertices.end())
-//     {
-//         T vertex = *reverseIt;
-//         // Remove the vertex from the result and add it back to the front
-//         result.removeAt(vertex);
-//         result.add(0, vertex);
-//         reverseIt++;
-//     }
-
-//     return result;
-// }
-
 
 
 
@@ -337,7 +188,7 @@ protected:
             }
             it++;
         }
-        //cout << "Zero In-Degrees List: " << zeroInDegrees.toString() << endl;
+        // cout << "Zero In-Degrees List: " << zeroInDegrees.toString() << endl;
         return zeroInDegrees;
     }
 };

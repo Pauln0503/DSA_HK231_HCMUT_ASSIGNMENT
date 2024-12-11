@@ -16,6 +16,8 @@
 #include "graph/IGraph.h"
 #include <string>
 #include <sstream>
+
+
 using namespace std;
 
 template <class T>
@@ -128,26 +130,36 @@ public:
     {
         // TODO
         VertexNode *fromNode = getVertexNode(from);
+        VertexNode *toNode = getVertexNode(to);
+
         if (!fromNode)
         {
-            throw VertexNotFoundException("Vertex " + vertex2str(from) + " not found.");
+            throw VertexNotFoundException(vertex2str(from) );
         }
-        typename DLinkedList<Edge*>::Iterator edgeIt = fromNode->adList.begin();
-        while (edgeIt != fromNode->adList.end()) {
-            Edge* edge = *edgeIt;
-            if (vertexEQ(edge->to->vertex, to)) {
+        if (!toNode)
+        {
+            throw VertexNotFoundException( vertex2str(to) );
+        }
+        if (fromNode->adList.empty())
+        {
+            throw EdgeNotFoundException(vertex2str(from));
+        }
+
+        // Duyệt qua các cạnh của fromNode để tìm cạnh đến toNode
+        typename DLinkedList<Edge *>::Iterator edgeIt = fromNode->adList.begin();
+        while (edgeIt != fromNode->adList.end())
+        {
+            Edge *edge = *edgeIt;
+            if (edge->to == toNode)
+            {
                 return edge->weight;
             }
             edgeIt++;
+            
         }
-        throw EdgeNotFoundException("Edge from " + vertex2str(from) + " to " + vertex2str(to) + " not found.");
-        
-        Edge *edge = fromNode->getEdge(getVertexNode(to));
-        if (!edge)
-        {
-            throw EdgeNotFoundException("Edge from " + vertex2str(from) + " to " + vertex2str(to) + " not found.");
-        }
-        return edge->weight;
+
+        // Nếu không tìm thấy cạnh thì throw exception
+        throw EdgeNotFoundException("E("+vertex2str(from)+","+vertex2str(to)+")");
     }
 
     virtual DLinkedList<T> getOutwardEdges(T from) override
@@ -156,7 +168,7 @@ public:
         VertexNode *fromNode = getVertexNode(from);
         if (!fromNode)
         {
-            throw VertexNotFoundException("Vertex " + vertex2str(from) + " not found.");
+            throw VertexNotFoundException(vertex2str(from));
         }
         // DLinkedList<T> outwardEdges;
         // typename DLinkedList<Edge*>::Iterator edgeIt = fromNode->adList.begin();
@@ -176,8 +188,8 @@ public:
         VertexNode *toNode = getVertexNode(to);
         if (!toNode)
         {
-            cerr << "Error: Vertex " << vertex2str(to) << " not found in graph." << endl;
-            throw VertexNotFoundException("Vertex " + vertex2str(to) + " not found.");
+            //cerr << "Error: Vertex " << vertex2str(to) << " not found in graph." << endl;
+            throw VertexNotFoundException(vertex2str(to));
         }
 
         DLinkedList<T> inwardEdges;
@@ -219,6 +231,8 @@ public:
         while (it != nodeList.end())
         {
             VertexNode *node = *it;
+
+            // Delete all edges for this vertex
             typename DLinkedList<Edge *>::Iterator edge_It = node->adList.begin();
             while (edge_It != node->adList.end())
             {
@@ -226,9 +240,13 @@ public:
                 delete edge;
                 edge_It++;
             }
+
+            // Delete the vertex node
             delete node;
             it++;
         }
+
+        // Clear the list of nodes
         nodeList.clear();
     }
 
@@ -238,7 +256,7 @@ public:
         VertexNode *vertexNode = getVertexNode(vertex);
         if (!vertexNode)
         {
-            throw VertexNotFoundException("Vertex not found");
+            throw VertexNotFoundException(vertex2str(vertex));
         }
         return vertexNode->inDegree();
     }
@@ -249,7 +267,7 @@ public:
         VertexNode *vertexNode = getVertexNode(vertex);
         if (!vertexNode)
         {
-            throw VertexNotFoundException("Vertex not found");
+            throw VertexNotFoundException(vertex2str(vertex));
         }
         return vertexNode->outDegree();
     }
@@ -274,11 +292,11 @@ public:
         VertexNode *toNode = getVertexNode(to);
         if (!fromNode)
         {
-            throw VertexNotFoundException("Vertex " + vertex2str(from) + " not found.");
+            throw VertexNotFoundException( vertex2str(from));
         }
         if (!toNode)
         {
-            throw VertexNotFoundException("Vertex " + vertex2str(to) + " not found.");
+            throw VertexNotFoundException( vertex2str(to));
         }
         typename DLinkedList<Edge *>::Iterator edgeIt = fromNode->adList.begin();
         while (edgeIt != fromNode->adList.end())
@@ -391,6 +409,17 @@ public:
         void connect(VertexNode *to, float weight = 0)
         {
             // TODO
+            for (Edge *edge : adList)
+            {
+                if (edge->to == to)
+                {
+                    // Nếu đã có cạnh, chỉ cập nhật weight
+                    edge->weight = weight;
+                    return;
+                }
+            }
+
+            // Nếu chưa có cạnh, tạo cạnh mới
             Edge *new_Edge = new Edge(this, to, weight);
             adList.add(new_Edge);
             this->outDegree_++;
@@ -436,24 +465,24 @@ public:
         void removeTo(VertexNode *to)
         {
             typename DLinkedList<Edge *>::Iterator edgeIt = adList.begin();
-
             while (edgeIt != adList.end())
             {
                 Edge *edge = *edgeIt;
-
                 if (edge->to == to)
                 {
-                    // Safely remove and delete the edge
+                    // Giảm outDegree của đỉnh hiện tại
+                    outDegree_--;
+                    // Giảm inDegree của đỉnh đích
+                    edge->to->inDegree_--;
+                    // Xóa cạnh
                     adList.removeItem(edge);
                     delete edge;
-                    outDegree_ = max(0, outDegree_ - 1);
-
+                    // Reset iterator vì list đã thay đổi
                     edgeIt = adList.begin();
-                    inDegree_ = std::max(0, inDegree_ - 1);
                 }
                 else
                 {
-                    edgeIt++; // Move to the next edge
+                    edgeIt++;
                 }
             }
         }
@@ -580,25 +609,3 @@ public:
 };
 
 #endif /* ABSTRACTGRAPH_H */
-
-// // VertexNode* vertexNode = getVertexNode(vertex);
-// if (!vertexNode) {
-//     throw VertexNotFoundException("Vertex not found");
-// }
-// int count = 0;
-// // Duyệt qua tất cả các đỉnh trong nodeList
-// typename DLinkedList<VertexNode*>::Iterator it = nodeList.begin();
-// while (it != nodeList.end()) {
-//     VertexNode* currentNode = *it;
-//     // Duyệt qua danh sách các cạnh của mỗi đỉnh và đếm số cạnh đi ra
-//     typename DLinkedList<Edge*>::Iterator edgeIt = currentNode->adList.begin();
-//     while (edgeIt != currentNode->adList.end()) {
-//         Edge* edge = *edgeIt;
-//         if (edge->from == vertexNode) {
-//             count++;
-//         }
-//         edgeIt++;
-//     }
-//     it++;
-// }
-// return count;

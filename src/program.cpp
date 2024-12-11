@@ -25,7 +25,6 @@ namespace fs = std::filesystem;
 #include "graph/UGraphModel.h"
 #include "graph/UGraphDemo.h"
 
-
 int main(int argc, char** argv) {
     //dataloader:
     //case_data_wo_label_1();
@@ -36,11 +35,11 @@ int main(int argc, char** argv) {
     //twoclasses_classification();
     //threeclasses_classification();
 
-    // ugraphDemo1();
-    // ugraphDemo2();
+     ugraphDemo1();
+     ugraphDemo2();
     //ugraphDemo3();
 
-    // DGraphDemo1();
+     DGraphDemo1();
     DGraphDemo2();
     DGraphDemo3();
     return 0;
